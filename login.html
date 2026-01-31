@@ -92,6 +92,9 @@
     <script src="js/sb-admin-2.min.js"></script>
     
     <script>
+        const token = localStorage.getItem('token')
+        console.log(token)
+        
         async function login() {
             const payload = {
                 email: document.getElementById('email').value.trim(),

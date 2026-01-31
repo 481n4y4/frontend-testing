@@ -248,8 +248,8 @@
             >
               Cancel
             </button>
-            <a class="btn btn-primary" href="login.html" onclick="logout()"
-              >Logout</a
+            <button class="btn btn-primary" onclick="logout()"
+              >Logout</button
             >
           </div>
         </div>
@@ -257,8 +257,10 @@
     </div>
 
     <script>
+      const token = localStorage.getItem("token");
+      const API = 'http://127.0.0.1:8000/api'
       async function fetchBarang() {
-        const token = localStorage.getItem("token");
+        console.log(token)
 
         if (!token) {
           alert("silahkan login dulu");
@@ -266,7 +268,7 @@
           return;
         }
 
-        const response = await fetch("http://127.0.0.1:8000/api/barang", {
+        const response = await fetch(`${API}/barang`, {
           method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
@@ -297,7 +299,7 @@
                         <td>${item.harga}</td>    
                         <td class='d-flex gap-3'>
                             <div>                                
-                                <a href="#" class="btn btn-primary btn-icon-split">
+                                <a href="./data_barang/detail.html?id=${item.id_barang}" class="btn btn-primary btn-icon-split">
                                     <span class="text">Detail</span>
                                 </a>  
                             </div>
@@ -307,7 +309,7 @@
                                 </a>  
                             </div>
                             <div>                                
-                                <a href="#" class="btn btn-danger btn-icon-split">
+                                <a href="#" onclick='deleteBarang(${item.id_barang})' class="btn btn-danger btn-icon-split">
                                     <span class="text">Hapus</span>
                                 </a>  
                             </div>
@@ -316,32 +318,49 @@
                 `;
         });
       }
+      async function deleteBarang(id) {
+         const params = new URLSearchParams(window.location.search)
 
-      document.addEventListener("DOMContentLoaded", fetchBarang);
+         if(!id) {
+          alert('barang tidak ditemukan')
+          return
+         }
+        
+         try {
+           const response = await fetch(`${API}/barang/${id}`, {
+            method: 'DELETE',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              Accept: 'application/json'
+            }
+           })
+  
+           if(response.status === 401) {
+            alert('session habis, silahkan login ulang')
+            localStorage.removeItem('token')
+            window.location.href = './login.html'
+            return
+           }
+  
+           if (!response.ok) {
+            const result = await response.json()
+            alert(result.message || 'gagal menghapus barang')
+            return
+           }
 
-      async function logout() {
-        const token = localStorage.getItem("token");
-
-        if (!token) {
-          window.location.href = "login.html";
-          return;
+           alert('barang berhasil terhapus')
+           window.location.reload()
+         } catch (err) {
+          console.error(err)
         }
 
-        await fetch("http://127.0.0.1:8000/api/logout", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: "application/json",
-          },
-        });
-
-        // HAPUS TOKEN DARI BROWSER
-        localStorage.removeItem("token");
-
-        // REDIRECT KE LOGIN
-        window.location.href = "login.html";
       }
+
+      document.addEventListener("DOMContentLoaded", fetchBarang);
     </script>
+
+    <script src="./logout.js"></script>
 
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
