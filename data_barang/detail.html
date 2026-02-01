@@ -93,33 +93,28 @@
                                         <div >
                                             <h1 class="h4 text-gray-900 mb-4">Tambah data</h1>
                                         </div>
-                                        <form class="user" onsubmit="event.preventDefault(); add()">
+                                        <div class="user">
                                             <div class="form-group">
-                                                <input type="textl" class="form-control "
-                                                    id="nama_barang" aria-describedby="emailHelp"
-                                                        placeholder="Nama Barang">
-                                            </div>
-                                            <div class="form-group">
-                                                <textarea class="form-control"
-                                                    id="deskripsi" aria-describedby="emailHelp"
-                                                        placeholder="Deskripsi"></textarea>
+                                                <label for="nama_barang">Nama Barang</label>
+                                                <span  class="form-control "
+                                                    id="nama_barang" ></span>
                                             </div>
                                             <div class="form-group">
-                                                <input type="number" class="form-control"
-                                                    id="stok" aria-describedby="emailHelp"
-                                                        placeholder="Stok">
+                                                <label for="deskripsi">Deskripsi</label>
+                                                <span class="form-control"
+                                                    id="deskripsi" ></span>
                                             </div>
                                             <div class="form-group">
-                                                <input type="number" class="form-control"
-                                                    id="harga" aria-describedby="emailHelp"
-                                                        placeholder="Harga">
+                                                <label for="stok">Stok</label>
+                                                <span class="form-control"
+                                                    id="stok" ></span>
                                             </div>
-                                            <div>
-                                                <button type="submit" class="btn btn-primary btn-user btn-block">
-                                                    Simpan
-                                                </button>
+                                            <div class="form-group">
+                                                <label for="harga">Harga</label>
+                                                <span class="form-control"
+                                                    id="harga" ></span>
                                             </div>
-                                        </form>
+                                        </div>
                                         
                                 </div>
                         </div>
@@ -173,59 +168,46 @@
         </div>
     </div>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../vendor/jquery/jquery.min.js"></script>
+<script src="../vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../vendor/jquery-easing/jquery.easing.min.js"></script>
+<script src="../js/sb-admin-2.min.js"></script>
 
-    <!-- Core plugin JavaScript-->
-    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-
-    <!-- Custom scripts for all pages-->
-    <script src="js/sb-admin-2.min.js"></script>
 
     <script>
-        async function add() {
-            const token = localStorage.getItem('token')
+        const API = 'http://127.0.0.1:8000/api'
+        const token = localStorage.getItem('token')
+        
+        if(!token) {
+            alert('silahkan login dulu')
+            window.location.href = 'login.html'
+        }
 
-            if(!token) {
-                alert('silahkan login dulu')
-                window.location.href = 'login.html'
-                return
-            }
-
-            const payload = {
-                nama_barang: document.getElementById('nama_barang').value.trim(),
-                deskripsi: document.getElementById('deskripsi').value.trim(),
-                stok: document.getElementById('stok').value.trim(),
-                harga: document.getElementById('harga').value.trim(),
-            }
-
-            if (!payload.nama_barang || !payload.deskripsi || !payload.stok || !payload.harga) {
-                alert('tolong setiap tabel diisi')
-                return
-            }
-
-            const response = await fetch('http://127.0.0.1:8000/api/barang/', {
-                method: "POST",
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get('id')
+        
+        async function show() {
+            const response = await fetch(`${API}/barang/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json',
                     Accept: 'application/json'
                 },
-                body: JSON.stringify(payload)
-            })
+             })
 
-            const result = await response.json()
-
-            if(!response.ok) {
-                alert(result.message || 'Gagal Tambah Data')
-                console.error(result)
-                return
-            }
-
-            alert('Berhasil Tambah Data')
-            window.location.href = '../tables.html'
+             if(!response.ok) {
+                 alert('Gagal Ambil Data')
+                 return
+             }
+            
+            const data = await response.json() 
+             
+            document.getElementById('nama_barang').textContent = data.data.nama_barang
+            document.getElementById('deskripsi').textContent = data.data.deskripsi
+            document.getElementById('stok').textContent = data.data.stok
+            document.getElementById('harga').textContent = data.data.harga
         }
+
+        document.addEventListener('DOMContentLoaded', show)
     </script>
 </body>
 
